@@ -53,3 +53,6 @@ hs_err_pid*
 # Ignore jekyll build output.
 /production
 /.sass-cache
+
+# Testing files
+temp

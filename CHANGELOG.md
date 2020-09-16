@@ -1,3 +1,31 @@
+# 1.5.0
+- Added support for Algorand Smart Contract Applications.
+
+# 1.4.2
+- Accept URI formatting in AlgodClient and IndexerClient to specify connection scheme.
+
+# 1.4.1
+- Fix Algod V2 Client encoding issue.
+- Add missing TransactionBuilder helper for working with suggested parameters.
+
+# 1.4.0
+- Clients for Indexer V2 and algod API V2
+
+# 1.3.1
+- Fix javadoc and build pom.xml.
+
+# 1.3.0
+- Added additional Algorand Smart Contracts (ASC)
+    - Added support for Dynamic Fee contract
+    - Added support for Limit Order contract
+    - Added support for Periodic Payment contract
+- Added new builder patterns for creating Transactions, see com.algorand.algosdk.builder.transaction.*
+- Add missing getters to AssetHolding model object.
+
+# 1.2.1
+# Added
+- Added asset decimals field.
+
 # 1.2.0
 # Added
 - Added support for Algorand Standardized Assets (ASA)

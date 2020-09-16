@@ -1,11 +1,14 @@
 package com.algorand.algosdk.transaction;
 
+import com.algorand.algosdk.crypto.Address;
 import com.algorand.algosdk.crypto.LogicsigSignature;
 import com.algorand.algosdk.crypto.MultisigSignature;
 import com.algorand.algosdk.crypto.Signature;
 import com.fasterxml.jackson.annotation.*;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
 /**
@@ -22,6 +25,11 @@ public class SignedTransaction implements Serializable {
     public MultisigSignature mSig = new MultisigSignature();
     @JsonProperty("lsig")
     public LogicsigSignature lSig = new LogicsigSignature();
+    @JsonProperty("sgnr")
+    public void authAddr(byte[] sigAddr) throws NoSuchAlgorithmException {
+        this.authAddr = new Address(sigAddr);
+    }
+    public Address authAddr = new Address();
 
     @JsonIgnore
     public String transactionID = "";
@@ -36,19 +44,36 @@ public class SignedTransaction implements Serializable {
         this.transactionID = Objects.requireNonNull(transactionID, "txID must not be null");
     }
 
+    public SignedTransaction(Transaction tx, Signature sig) throws IOException, NoSuchAlgorithmException {
+        this(tx, sig, new MultisigSignature(), new LogicsigSignature(), tx.txID());
+    }
+
     public SignedTransaction(Transaction tx, Signature sig, String txId) {
         this(tx, sig, new MultisigSignature(), new LogicsigSignature(), txId);
+    }
+
+    public SignedTransaction(Transaction tx, MultisigSignature mSig) throws IOException, NoSuchAlgorithmException {
+        this(tx, new Signature(), mSig, new LogicsigSignature(), tx.txID());
     }
 
     public SignedTransaction(Transaction tx, MultisigSignature mSig, String txId) {
         this(tx, new Signature(), mSig, new LogicsigSignature(), txId);
     }
 
+    public SignedTransaction(Transaction tx, LogicsigSignature lSig) throws IOException, NoSuchAlgorithmException {
+        this(tx, new Signature(), new MultisigSignature(), lSig, tx.txID());
+    }
+
     public SignedTransaction(Transaction tx, LogicsigSignature lSig, String txId) {
         this(tx, new Signature(), new MultisigSignature(), lSig, txId);
     }
 
-    public SignedTransaction() {
+    private SignedTransaction() {
+    }
+
+    public SignedTransaction authAddr(Address authAddr) {
+        this.authAddr = authAddr;
+        return this;
     }
 
     @JsonCreator
@@ -56,12 +81,14 @@ public class SignedTransaction implements Serializable {
             @JsonProperty("txn") Transaction tx,
             @JsonProperty("sig") byte[] sig,
             @JsonProperty("msig") MultisigSignature mSig,
-            @JsonProperty("lsig") LogicsigSignature lSig
+            @JsonProperty("lsig") LogicsigSignature lSig,
+            @JsonProperty("sgnr") byte[] authAddr
     ) {
         if (tx != null) this.tx = tx;
         if (sig != null) this.sig = new Signature(sig);
         if (mSig != null) this.mSig = mSig;
         if (lSig != null) this.lSig = lSig;
+        if (authAddr != null) this.authAddr = new Address(authAddr);
         // don't recover the txid yet
     }
 
@@ -72,6 +99,7 @@ public class SignedTransaction implements Serializable {
             if (!tx.equals(actual.tx)) return false;
             if (!sig.equals(actual.sig)) return false;
             if (!lSig.equals(actual.lSig)) return false;
+            if (!authAddr.equals(actual.authAddr)) return false;
             return this.mSig.equals(actual.mSig);
         } else {
             return false;
